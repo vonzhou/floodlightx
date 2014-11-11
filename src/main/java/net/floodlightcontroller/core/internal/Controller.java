@@ -1,20 +1,3 @@
-/**
- *    Copyright 2011, Big Switch Networks, Inc. 
- *    Originally created by David Erickson, Stanford University
- * 
- *    Licensed under the Apache License, Version 2.0 (the "License"); you may
- *    not use this file except in compliance with the License. You may obtain
- *    a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- *    License for the specific language governing permissions and limitations
- *    under the License.
- **/
-
 package net.floodlightcontroller.core.internal;
 
 import java.io.FileInputStream;
@@ -391,6 +374,7 @@ public class Controller implements IFloodlightProviderService,
 
 	/**
 	 * Return a new channel handler for processing a switch connections
+	 * 处理传来的openlfow消息
 	 * 
 	 * @param state
 	 *            The channel state object for the connection
@@ -427,6 +411,7 @@ public class Controller implements IFloodlightProviderService,
 			sw.setThreadPoolService(threadPool);
 
 			List<OFMessage> msglist = new ArrayList<OFMessage>(1);
+			// 初次连接 我们得到Hello消息，回应Switch的也是HELLO
 			msglist.add(factory.getMessage(OFType.HELLO));
 			e.getChannel().write(msglist);
 		}
@@ -497,6 +482,7 @@ public class Controller implements IFloodlightProviderService,
 			e.getChannel().write(msglist);
 		}
 
+		//重点这里
 		@Override
 		public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 				throws Exception {
@@ -804,6 +790,7 @@ public class Controller implements IFloodlightProviderService,
 		}
 
 		/**
+		 * 处理特定的消息
 		 * Dispatch an Openflow message from a switch to the appropriate
 		 * handler.
 		 * 

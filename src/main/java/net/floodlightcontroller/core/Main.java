@@ -10,9 +10,8 @@ import net.floodlightcontroller.core.module.IFloodlightModuleContext;
 import net.floodlightcontroller.restserver.IRestApiService;
 
 /**
- * 入口
+ * 启动的入口
  * Host for the Floodlight main method
- * @author alexreimers
  */
 public class Main {
 
@@ -35,7 +34,7 @@ public class Main {
             System.exit(1);
         }
         
-        // Load modules
+        //从配置文件中加载模块
         FloodlightModuleLoader fml = new FloodlightModuleLoader();
         IFloodlightModuleContext moduleContext = fml.loadModulesFromConfig(settings.getModuleFile());
         // Run REST server
@@ -45,6 +44,7 @@ public class Main {
         IFloodlightProviderService controller =
                 moduleContext.getServiceImpl(IFloodlightProviderService.class);
         // This call blocks, it has to be the last line in the main
+        //核心代码
         controller.run();
     }
 }

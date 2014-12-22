@@ -1,5 +1,4 @@
 
-
-阅读 Floodlight 源码，SDN实战。
+Floodlight Controller代码阅读及实践
 
 vonzhou - 2014-10-23

@@ -253,6 +253,7 @@ public abstract class ForwardingBase implements IOFMessageListener,
 	}
 
 	/**
+	 * 研究这里，理解Packet Out的用法
 	 * Pushes a packet-out to a switch. The assumption here is that the
 	 * packet-in was also generated from the same switch. Thus, if the input
 	 * port of the packet-in and the outport are the same, the function will not

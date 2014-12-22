@@ -1,9 +1,7 @@
 package net.floodlightcontroller.mactracker;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -21,11 +19,9 @@ import net.floodlightcontroller.packet.Ethernet;
 import net.floodlightcontroller.packet.IPv4;
 import net.floodlightcontroller.packet.UDP;
 
-import org.openflow.protocol.OFFPUpdate;
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFType;
-import org.openflow.protocol.action.OFAction;
-import org.openflow.protocol.action.OFActionFPUpdate;
+import org.openflow.util.HexString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,79 +86,26 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 	@Override
 	public net.floodlightcontroller.core.IListener.Command receive(
 			IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
-		//i want to see the packet in data,to see if get such as the file name
 		
-		
-		/*
-		OFPacketIn pi = (OFPacketIn)msg;
-		logger.info("PacketIn buffer id :" + pi.getBufferId());
-		 
-		OFMatch match = new OFMatch();
-	    match.loadFromPacket(pi.getPacketData(), pi.getInPort());
-	    logger.info("destination port num: " + (short)match.getTransportDestination());
-	    if(match.getNetworkProtocol() == 0x11 && match.getTransportDestination() == 2500){
-	    	// UDP
-	    	logger.info("packet_in len: " + pi.getLengthU());
-	    	StringBuffer buff = new StringBuffer();
-	        for (int i = 0; i < pi.getPacketData().length; i++)	            {
-	        	 buff.append((char)pi.getPacketData()[i]);
-	        }
-	    	String filename = buff.substring(54, buff.length());
-	    	logger.info("filename : " + filename);
-	    	 
-	    }
-	    */
-		Ethernet eth = IFloodlightProviderService.bcStore.get(cntx,
-                                            IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
-		
-		if(eth.getEtherType() == Ethernet.TYPE_IPv4){
-                IPv4 ipPkt = (IPv4)eth.getPayload();
-                if(ipPkt.getProtocol() == IPv4.PROTOCOL_UDP){
-                         UDP udpPkt = (UDP)ipPkt.getPayload();
-                         Data dataPkt = (Data)udpPkt.getPayload();
-               
-                        System.out.println(dataPkt.getData().length);  
-                        
-                        byte[] arr = dataPkt.getData();
-                        for (int i = 0; i < dataPkt.getData().length; i++){
-                        		System.out.print((char)arr[i]);
-                        }
-                 }
-		}
-	    /*After got the file name from the packet_in,
-	     * we push the appropriate fp vector to the SW
-	     * (TODO:the switches along the path)
-	     */
-	    /*FIXME  extract a method
-	    OFFPUpdate fu =
-                (OFFPUpdate) floodlightProvider.getOFMessageFactory()
-                                              .getMessage(OFType.FP_UPDATE);
-        OFActionFPUpdate action = new OFActionFPUpdate();
-        action.setVector(0xffffffff); // just for testing
-        List<OFAction> actions = new ArrayList<OFAction>();
-        actions.add(action);
-
-        fu.setBufferId(OFFPUpdate.BUFFER_ID_NONE)
-        	.setInPort((short)0)
-            .setActions(actions)
-            .setLengthU(OFFPUpdate.MINIMUM_LENGTH+OFActionFPUpdate.MINIMUM_LENGTH);
-        try {
-			sw.write(fu, cntx);
-		} catch (IOException e) {
-            logger.error("Failure writing fp update", e);
-        }
-	    */
-	    /*
-		 // get mac 
+		 // get packet in msg
 		Ethernet eth = floodlightProvider.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+		//store mac address
 		Long ethMacHash  = Ethernet.toLong(eth.getSourceMACAddress());
 		if(!macAddresses.contains(ethMacHash)){
 			macAddresses.add(ethMacHash);
-			logger.info("MAC Address:{} seen on switch {}",
-					HexString.toHexString(ethMacHash),sw.getId());
+			logger.info("MAC Address:{} seen on switch {},Ether Type:{}",
+					new Object[]{
+					HexString.toHexString(ethMacHash),
+					sw.getId(),
+					HexString.toHexString(eth.getEtherType())});
 			
 		}
-		*/
+		//Get the IP addresses
+		if(eth.getEtherType() == Ethernet.TYPE_IPv4){
+            IPv4 ipPkt = (IPv4)eth.getPayload();
+            logger.info("Src IP address is {}", IPv4.fromIPv4Address(ipPkt.getSourceAddress()));
+	}
+		
 		return Command.CONTINUE;// other handlers in this pipeline to process this packetin ;
 	}
 

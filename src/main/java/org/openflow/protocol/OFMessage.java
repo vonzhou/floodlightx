@@ -1,20 +1,3 @@
-/**
-*    Copyright (c) 2008 The Board of Trustees of The Leland Stanford Junior
-*    University
-* 
-*    Licensed under the Apache License, Version 2.0 (the "License"); you may
-*    not use this file except in compliance with the License. You may obtain
-*    a copy of the License at
-*
-*         http://www.apache.org/licenses/LICENSE-2.0
-*
-*    Unless required by applicable law or agreed to in writing, software
-*    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-*    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-*    License for the specific language governing permissions and limitations
-*    under the License.
-**/
-
 package org.openflow.protocol;
 
 import java.text.DateFormat;
@@ -36,6 +19,7 @@ import org.openflow.util.U8;
 /**
  * The base class for all OpenFlow protocol messages. This class contains the
  * equivalent of the ofp_header which is present in all OpenFlow messages.
+ * openflowœ˚œ¢Õ∑
  *
  * @author David Erickson (daviderickson@cs.stanford.edu) - Feb 3, 2010
  * @author Rob Sherwood (rob.sherwood@stanford.edu) - Feb 3, 2010

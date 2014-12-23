@@ -1,20 +1,3 @@
-/**
-*    Copyright 2011, Big Switch Networks, Inc. 
-*    Originally created by David Erickson, Stanford University
-* 
-*    Licensed under the Apache License, Version 2.0 (the "License"); you may
-*    not use this file except in compliance with the License. You may obtain
-*    a copy of the License at
-*
-*         http://www.apache.org/licenses/LICENSE-2.0
-*
-*    Unless required by applicable law or agreed to in writing, software
-*    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-*    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-*    License for the specific language governing permissions and limitations
-*    under the License.
-**/
-
 package net.floodlightcontroller.hub;
 
 import static org.easymock.EasyMock.createMock;
@@ -49,7 +32,7 @@ import org.openflow.protocol.action.OFAction;
 import org.openflow.protocol.action.OFActionOutput;
 
 /**
- *
+ * 看这个测试代码
  * @author David Erickson (daviderickson@cs.stanford.edu)
  */
 public class HubTest extends FloodlightTestCase {
@@ -69,6 +52,7 @@ public class HubTest extends FloodlightTestCase {
         hub.setFloodlightProvider(mockFloodlightProvider);
         
         // Build our test packet
+        // 学习如何构造UDP包
         this.testPacket = new Ethernet()
             .setDestinationMACAddress("00:11:22:33:44:55")
             .setSourceMACAddress("00:44:33:22:11:00")

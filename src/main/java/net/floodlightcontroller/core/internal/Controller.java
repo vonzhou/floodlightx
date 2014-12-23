@@ -1071,6 +1071,7 @@ public class Controller implements IFloodlightProviderService,
 	}
 
 	/**
+	 * 重要：处理对各个OF消息的回应
 	 * Handle replies to certain OFMessages, and pass others off to listeners
 	 * 
 	 * @param sw
@@ -1103,10 +1104,12 @@ public class Controller implements IFloodlightProviderService,
 				counterStore.updatePacketInCounters(sw, m, eth);
 			}
 			// fall through to default case...
+			// ！！！！！！注意这里！！！！
 
 		default:
 
 			List<IOFMessageListener> listeners = null;
+			// 根据具体的消息类型，得到其所有的观察者
 			if (messageListeners.containsKey(m.getType())) {
 				listeners = messageListeners.get(m.getType())
 						.getOrderedListeners();
@@ -1144,6 +1147,7 @@ public class Controller implements IFloodlightProviderService,
 					}
 
 					pktinProcTime.recordStartTimeComp(listener);
+					// 重要：通知每个观察者相应消息的到达，从而进行处理
 					cmd = listener.receive(sw, m, bc);
 					pktinProcTime.recordEndTimeComp(listener);
 
@@ -1720,6 +1724,7 @@ public class Controller implements IFloodlightProviderService,
 	}
 
 	/**
+	 * Main -- > 这里，开始运作，接收switch的消息
 	 * Tell controller that we're ready to accept switches loop
 	 * 
 	 * @throws IOException
@@ -1818,6 +1823,7 @@ public class Controller implements IFloodlightProviderService,
 
 	/**
 	 * Initialize internal data structures
+	 * 所有的模块属性（数据结构）的初始化都是在init中实现的，这是Floodlight种Module的书写规则
 	 */
 	public void init(Map<String, String> configParams) {
 		// These data structures are initialized here because other

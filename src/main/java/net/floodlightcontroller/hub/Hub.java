@@ -1,20 +1,3 @@
-/**
-*    Copyright 2011, Big Switch Networks, Inc. 
-*    Originally created by David Erickson, Stanford University
-* 
-*    Licensed under the Apache License, Version 2.0 (the "License"); you may
-*    not use this file except in compliance with the License. You may obtain
-*    a copy of the License at
-*
-*         http://www.apache.org/licenses/LICENSE-2.0
-*
-*    Unless required by applicable law or agreed to in writing, software
-*    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-*    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-*    License for the specific language governing permissions and limitations
-*    under the License.
-**/
-
 package net.floodlightcontroller.hub;
 
 import java.io.IOException;
@@ -64,7 +47,11 @@ public class Hub implements IFloodlightModule, IOFMessageListener {
         return Hub.class.getPackage().getName();
     }
 
+    /*
+     * Hub的具体处理逻辑：通过packet out来广播到其他端口
+     */
     public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
+    	// 只监听packet in 消息
         OFPacketIn pi = (OFPacketIn) msg;
         OFPacketOut po = (OFPacketOut) floodlightProvider.getOFMessageFactory()
                 .getMessage(OFType.PACKET_OUT);
@@ -72,8 +59,7 @@ public class Hub implements IFloodlightModule, IOFMessageListener {
             .setInPort(pi.getInPort());
 
         // set actions
-        OFActionOutput action = new OFActionOutput()
-            .setPort((short) OFPort.OFPP_FLOOD.getValue());
+        OFActionOutput action = new OFActionOutput().setPort((short) OFPort.OFPP_FLOOD.getValue());
         po.setActions(Collections.singletonList((OFAction)action));
         po.setActionsLength((short) OFActionOutput.MINIMUM_LENGTH);
 

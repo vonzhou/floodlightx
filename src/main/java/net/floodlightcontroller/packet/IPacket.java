@@ -2,6 +2,7 @@ package net.floodlightcontroller.packet;
 
 /**
 * Packet的公共接口，使得包的封装解析更加的方便，有点装饰模式的感觉？
+* 
 * @author David Erickson (daviderickson@cs.stanford.edu)
 */
 public interface IPacket {

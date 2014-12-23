@@ -1,20 +1,3 @@
-/**
- *    Copyright 2011, Big Switch Networks, Inc.
- *    Originally created by David Erickson, Stanford University
- *
- *    Licensed under the Apache License, Version 2.0 (the "License"); you may
- *    not use this file except in compliance with the License. You may obtain
- *    a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- *    License for the specific language governing permissions and limitations
- *    under the License.
- **/
-
 package net.floodlightcontroller.linkdiscovery.internal;
 
 import java.io.IOException;
@@ -138,8 +121,7 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 	protected IThreadPoolService threadPool;
 
 	protected SingletonTask sendLLDPTask;
-	private static final byte[] LLDP_STANDARD_DST_MAC_STRING = HexString
-			.fromHexString("01:80:c2:00:00:0e");
+	private static final byte[] LLDP_STANDARD_DST_MAC_STRING = HexString.fromHexString("01:80:c2:00:00:0e");
 	private static final long LINK_LOCAL_MASK = 0xfffffffffff0L;
 	private static final long LINK_LOCAL_VALUE = 0x0180c2000000L;
 
@@ -253,8 +235,7 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		return this.suppressLLDPs.contains(new SwitchPortTuple(sw, portNumber));
 	}
 
-	protected void sendLLDPs(IOFSwitch sw, OFPhysicalPort port,
-			boolean isStandard) {
+	protected void sendLLDPs(IOFSwitch sw, OFPhysicalPort port,	boolean isStandard) {
 
 		if (isLLDPSuppressed(sw, port.getPortNumber())) {
 			/*
@@ -272,10 +253,12 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		Ethernet ethernet;
 		// LLDP is the standard proto to detect links ??
 		if (isStandard) {
+			// 只看这里的逻辑
 			ethernet = new Ethernet()
 					.setSourceMACAddress(port.getHardwareAddress())
 					.setDestinationMACAddress(LLDP_STANDARD_DST_MAC_STRING)
 					.setEtherType(Ethernet.TYPE_LLDP);
+			// 
 			lldp = new LLDP();
 		} else {
 			ethernet = new Ethernet()
@@ -353,11 +336,12 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		// set data
 		po.setLengthU(OFPacketOut.MINIMUM_LENGTH + po.getActionsLength()
 				+ data.length);
+		// 把上面构造的LLDP填入到Packet-Out中
 		po.setPacketData(data);
 
 		// send
 		try {
-			sw.write(po, null);
+			sw.write(po, null);  // null ？是啥意思
 		} catch (IOException e) {
 			log.error("Failure sending LLDP out port {} on switch {}",
 					new Object[] { port.getPortNumber(), sw }, e);
@@ -377,6 +361,9 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		}
 	}
 
+	/*
+	 * Switch 的每个端口发送LLDP包，布尔型变量代表其是否是一个openflow标准的交换机
+	 */
 	protected void sendLLDPs(IOFSwitch sw, boolean isStandard) {
 
 		if (sw.getEnabledPorts() != null) {
@@ -455,7 +442,7 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		switch (msg.getType()) {
 		case PACKET_IN:
 			return this.handlePacketIn(sw, (OFPacketIn) msg, cntx);
-		case PORT_STATUS:
+		case PORT_STATUS:// 端口状态发生改变，或者在Switch和Controller握手阶段
 			return this.handlePortStatus(sw, (OFPortStatus) msg);
 		}
 
@@ -463,6 +450,9 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		return Command.CONTINUE;
 	}
 
+	/*
+	 * 链路的推算
+	 */
 	private Command handleLldp(LLDP lldp, IOFSwitch sw, OFPacketIn pi,
 			boolean isStandard, FloodlightContext cntx) {
 		// If LLDP is suppressed on this port, ignore received packet as well
@@ -578,6 +568,9 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		return Command.STOP;
 	}
 
+	/*
+	 * 链路发现层对packet in 消息的处理逻辑！
+	 */
 	protected Command handlePacketIn(IOFSwitch sw, OFPacketIn pi,
 			FloodlightContext cntx) {
 		Ethernet eth = IFloodlightProviderService.bcStore.get(cntx,
@@ -586,6 +579,7 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		if (eth.getEtherType() == Ethernet.TYPE_BDDP) {
 			return handleLldp((LLDP) eth.getPayload(), sw, pi, false, cntx);
 		} else if (eth.getEtherType() == Ethernet.TYPE_LLDP) {
+			// 通过接收到的LLDP 控制器可以获知直接相连的链路情况
 			return handleLldp((LLDP) eth.getPayload(), sw, pi, true, cntx);
 		} else if (eth.getEtherType() < 1500) {
 			long destMac = eth.getDestinationMAC().toLong();
@@ -1444,11 +1438,12 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		ScheduledExecutorService ses = threadPool.getScheduledExecutor();
 
 		// To be started by the first switch connection
+		// 这个单例线程获得了初始化，用于定时想switch发送LLDP消息用于探测链路的状态改变
 		sendLLDPTask = new SingletonTask(ses, new Runnable() {
 			@Override
 			public void run() {
 				try {
-					sendLLDPs();
+					sendLLDPs();  // 核心，重点看构造包的过程
 				} catch (StorageException e) {
 					log.error("Storage exception in LLDP send timer; "
 							+ "terminating process", e);
@@ -1463,7 +1458,7 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 				}
 			}
 		});
-		// 这个任务在哪儿启动的呢？
+		// 这个任务在哪儿启动的呢？  看line 870
 
 		Runnable timeoutLinksTimer = new Runnable() {
 			@Override

@@ -1,32 +1,3 @@
-/**
-*    Copyright 2011, Big Switch Networks, Inc. 
-*    Originally created by David Erickson, Stanford University
-* 
-*    Licensed under the Apache License, Version 2.0 (the "License"); you may
-*    not use this file except in compliance with the License. You may obtain
-*    a copy of the License at
-*
-*         http://www.apache.org/licenses/LICENSE-2.0
-*
-*    Unless required by applicable law or agreed to in writing, software
-*    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-*    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-*    License for the specific language governing permissions and limitations
-*    under the License.
-**/
-
-/**
- * Floodlight
- * A BSD licensed, Java based OpenFlow controller
- *
- * Floodlight is a Java based OpenFlow controller originally written by David Erickson at Stanford
- * University. It is available under the BSD license.
- *
- * For documentation, forums, issue tracking and more visit:
- *
- * http://www.openflowhub.org/display/Floodlight/Floodlight+Home
- **/
-
 package net.floodlightcontroller.learningswitch;
 
 import java.io.IOException;
@@ -68,6 +39,9 @@ import org.openflow.util.LRULinkedHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * 
+ */
 public class LearningSwitch 
     implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
     protected static Logger log = LoggerFactory.getLogger(LearningSwitch.class);
@@ -316,10 +290,7 @@ public class LearningSwitch
      * Processes a OFPacketIn message. If the switch has learned the MAC/VLAN to port mapping
      * for the pair it will write a FlowMod for. If the mapping has not been learned the 
      * we will flood the packet.
-     * @param sw
-     * @param pi
-     * @param cntx
-     * @return
+     * 处理packetin，如果已经有mac-port的映射则下发 flow modify，否则会flood这个packet
      */
     private Command processPacketInMessage(IOFSwitch sw, OFPacketIn pi, FloodlightContext cntx) {
         // Read in packet data headers by using OFMatch
@@ -336,6 +307,7 @@ public class LearningSwitch
             return Command.STOP;
         }
         if ((sourceMac & 0x010000000000L) == 0) {
+        	// 每次收到一个packet in都会更新维护的映射信息
             // If source MAC is a unicast address, learn the port for this MAC/VLAN
             this.addToPortMap(sw, sourceMac, vlan, pi.getInPort());
         }
@@ -348,8 +320,10 @@ public class LearningSwitch
             // XXX For LearningSwitch this doesn't do much. The sourceMac is removed
             //     from port map whenever a flow expires, so you would still see
             //     a lot of floods.
+        	
             this.writePacketOutForPacketIn(sw, pi, OFPort.OFPP_FLOOD.getValue());
         } else if (outPort == match.getInputPort()) {
+        	// XXX outport = inport 的情况不被允许？？？
             log.trace("ignoring packet that arrived on same port as learned destination:"
                     + " switch {} vlan {} dest MAC {} port {}",
                     new Object[]{ sw, vlan, HexString.toHexString(destMac), outPort });
@@ -367,6 +341,7 @@ public class LearningSwitch
                     & ~OFMatch.OFPFW_IN_PORT
                     & ~OFMatch.OFPFW_DL_VLAN & ~OFMatch.OFPFW_DL_SRC & ~OFMatch.OFPFW_DL_DST
                     & ~OFMatch.OFPFW_NW_SRC_MASK & ~OFMatch.OFPFW_NW_DST_MASK);
+            // 写入这个流表，从outPort转发
             this.writeFlowMod(sw, OFFlowMod.OFPFC_ADD, pi.getBufferId(), match, outPort);
             if (LEARNING_SWITCH_REVERSE_FLOW) {
                 this.writeFlowMod(sw, OFFlowMod.OFPFC_ADD, -1, match.clone()
@@ -425,7 +400,7 @@ public class LearningSwitch
     }
     
     // IOFMessageListener
-    
+    // 入口在这里
     @Override
     public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
         switch (msg.getType()) {

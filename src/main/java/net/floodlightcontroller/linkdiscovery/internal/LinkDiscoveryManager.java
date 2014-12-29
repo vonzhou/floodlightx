@@ -436,13 +436,15 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		return "linkdiscovery";
 	}
 
+	// 该模块对 接口IOFSwitchListener的实现，
 	// 监听者来处理订阅的消息，
 	@Override
 	public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
 		switch (msg.getType()) {
 		case PACKET_IN:
 			return this.handlePacketIn(sw, (OFPacketIn) msg, cntx);
-		case PORT_STATUS:// 端口状态发生改变，或者在Switch和Controller握手阶段
+		case PORT_STATUS:
+			// 端口状态发生改变，或者在Switch和Controller握手阶段
 			return this.handlePortStatus(sw, (OFPortStatus) msg);
 		}
 
@@ -771,6 +773,7 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 	}
 
 	/**
+	 * 有待研究
 	 * Handles an OFPortStatus message from a switch. We will add or delete
 	 * LinkTupes as well re-compute the topology if needed.
 	 * 
@@ -877,6 +880,7 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 	}
 
 	/**
+	 * 这里是对接口 IOFSwitchListener的实现
 	 * We send out LLDP messages when a switch is added to discover the topology
 	 * 
 	 * @param sw
@@ -1367,7 +1371,7 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		// it's own
 	}
 
-	// IFloodlightModule classes
+	// IFloodlightModule的具体实现
 
 	@Override
 	public Collection<Class<? extends IFloodlightService>> getModuleServices() {
@@ -1397,12 +1401,14 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 	@Override
 	public void init(FloodlightModuleContext context)
 			throws FloodlightModuleException {
+		// 从模块加载上下文维护的数据结构中获得相关的服务
 		floodlightProvider = context
 				.getServiceImpl(IFloodlightProviderService.class);
 		storageSource = context.getServiceImpl(IStorageSourceService.class);
 		threadPool = context.getServiceImpl(IThreadPoolService.class);
 
 		// We create this here because there is no ordering guarantee
+		// 自身的内部数据结构初始化
 		this.linkDiscoveryAware = new ArrayList<ILinkDiscoveryListener>();
 		this.lock = new ReentrantReadWriteLock();
 		this.updates = new LinkedBlockingQueue<LDUpdate>();
@@ -1500,6 +1506,7 @@ public class LinkDiscoveryManager implements IOFMessageListener,
 		}, "Topology Updates");
 		updatesThread.start();
 
+		// 重点： 注册事件监听器  所以可以在Controller的run方法中迭代每个listener的receive方法
 		// Register for the OpenFlow messages we want to receive
 		floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
 		floodlightProvider.addOFMessageListener(OFType.PORT_STATUS, this);

@@ -120,6 +120,7 @@ public class FloodlightModuleLoader {
 	}
 	
 	/**
+	 * 从配置文件中解析出各个模块名
 	 * Loads the modules from a specified configuration file.
 	 * @param fName The configuration file path
 	 * @return An IFloodlightModuleContext with all the modules to be started

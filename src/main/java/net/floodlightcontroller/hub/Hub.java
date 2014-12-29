@@ -26,10 +26,7 @@ import org.openflow.util.U16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author David Erickson (daviderickson@cs.stanford.edu) - 04/04/10
- */
+
 public class Hub implements IFloodlightModule, IOFMessageListener {
     protected static Logger log = LoggerFactory.getLogger(Hub.class);
 

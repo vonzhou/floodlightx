@@ -996,6 +996,8 @@ public class Controller implements IFloodlightProviderService,
 										m.getType(), sw);
 							}
 						} else {
+							// 注意这里 最后一个参数 FloodlightContext=null，所以是在
+							//这时进行分配
 							handleMessage(sw, m, null);
 						}
 					}
@@ -1034,6 +1036,9 @@ public class Controller implements IFloodlightProviderService,
 
 	/**
 	 * flcontext_cache - Keep a thread local stack of contexts
+	 * 重要
+	 * 这个ThreadLocal 的核心操作是set,get
+	 * flcontext_alloc()中并没有相应的set操作啊！！！！
 	 */
 	protected static final ThreadLocal<Stack<FloodlightContext>> flcontext_cache = new ThreadLocal<Stack<FloodlightContext>>() {
 		@Override
@@ -1118,6 +1123,7 @@ public class Controller implements IFloodlightProviderService,
 				// listeners);
 			}
 
+			//这个维护上下文信息的FloodlightContext容器，在这里进行申请
 			FloodlightContext bc = null;
 			if (listeners != null) {
 				// Check if floodlight context is passed from the calling

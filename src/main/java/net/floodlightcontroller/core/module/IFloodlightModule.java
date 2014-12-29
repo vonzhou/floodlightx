@@ -6,6 +6,7 @@ import java.util.Map;
 
 /**
  * Defines an interface for loadable Floodlight modules.
+ * 可加载的Floodlight模块的接口定义
  * 
  * At a high level, these functions are called in the following order:
  * <ol>
@@ -20,6 +21,7 @@ import java.util.Map;
 public interface IFloodlightModule {
 	
 	/**
+	 * 该模块实现的所有服务列表
 	 * Return the list of interfaces that this module implements.
 	 * All interfaces must inherit IFloodlightService
 	 * @return
@@ -28,6 +30,7 @@ public interface IFloodlightModule {
 	public Collection<Class<? extends IFloodlightService>> getModuleServices();
 	
 	/**
+	 * IFloodlightService到具体实现的映射
 	 * Instantiate (as needed) and return objects that implement each
 	 * of the services exported by this module.  The map returned maps
 	 * the implemented service to the object.  The object could be the
@@ -38,6 +41,7 @@ public interface IFloodlightModule {
 	           IFloodlightService> getServiceImpls();
 	
 	/**
+	 * 该模块依赖的模块，必须保证他们先于该模块调用init
 	 * Get a list of Modules that this module depends on.  The module system
 	 * will ensure that each these dependencies is resolved before the 
 	 * subsequent calls to init().
@@ -48,6 +52,7 @@ public interface IFloodlightModule {
 	public Collection<Class<? extends IFloodlightService>> getModuleDependencies();
 	
 	/**
+	 * 模块内部初始化
 	 * This is a hook for each module to do its <em>internal</em> initialization, 
 	 * e.g., call setService(context.getService("Service"))
 	 * 
@@ -61,6 +66,7 @@ public interface IFloodlightModule {
 	void init(FloodlightModuleContext context) throws FloodlightModuleException;
 	
 	/**
+	 * 外部初始化：注册回调函数，或者查询其他模块的状态
 	 * This is a hook for each module to do its <em>external</em> initializations,
 	 * e.g., register for callbacks or query for state in other modules
 	 * 

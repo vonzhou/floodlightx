@@ -16,6 +16,22 @@ import net.floodlightcontroller.restserver.IRestApiService;
 import net.floodlightcontroller.storage.IStorageSourceService;
 import net.floodlightcontroller.threadpool.IThreadPoolService;
 
+/*
+ * The FloodlightProvider provides two main pieces of functionality. 
+ * It handles the connections to switches and turns OpenFlow messages into events 
+ * that other modules can listen for. The second big function that it provides is 
+ * decides the order in which specific OpenFlow messages (i.e. PacketIn, FlowRemoved, 
+ * PortStatus, etc) are dispatched to the modules that listen for the messages. 
+ * Modules can then decide to allow the processing of the message to go onto the next 
+ * listener or to stop processing the message.
+ * 
+ * The FloodlightProvider uses the Netty library to handle threading and connections to switches. 
+ * Each OpenFlow message will be processed by a Netty thread and will execute all logic associated 
+ * with with the message across all modules. Other modules can also register for specific events 
+ * like switches connecting or disconnecting and port status notifications. The FloodlightProvider 
+ * will turn these wire protocol notifications into java based messages that other modules can handle. 
+ * In order for modules to register for OpenFlow messages they must implement the IOFMessageListener interface.
+ */
 public class FloodlightProvider implements IFloodlightModule {
     Controller controller;
     

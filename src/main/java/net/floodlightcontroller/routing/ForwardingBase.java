@@ -102,7 +102,8 @@ public abstract class ForwardingBase implements IOFMessageListener,
 	public abstract Command processPacketInMessage(IOFSwitch sw, OFPacketIn pi,
 			IRoutingDecision decision, FloodlightContext cntx);
 
-	// 处理OF Message
+	
+	// 该模块对 接口IOFSwitchListener的实现，
 	@Override
 	public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
 		switch (msg.getType()) {

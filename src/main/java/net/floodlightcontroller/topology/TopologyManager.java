@@ -503,6 +503,9 @@ public class TopologyManager implements
         return false;
     }
 
+    /*
+     * 该模块对 接口IOFSwitchListener的实现，
+     */
     @Override
     public Command receive(IOFSwitch sw, OFMessage msg,
                            FloodlightContext cntx) {
@@ -785,10 +788,11 @@ public class TopologyManager implements
                 get(cntx,IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 
         if (eth.getEtherType() == Ethernet.TYPE_BDDP) {
+        	 // if the packet is BDDP, then send flood it on all the external 
+            // switch ports in the same openflow domain.
             doFloodBDDP(sw.getId(), pi, cntx);
         } else {
-            // if the packet is BDDP, then send flood it on all the external 
-            // switch ports in the same openflow domain.
+           
             checkTunnelUsage(sw, pi, cntx);
             return dropFilter(sw, pi, cntx);
         }

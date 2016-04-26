@@ -1,9 +1,1 @@
 
-*~
-*.class
-.classpath
-.settings/
-.project
-target
-thrift
-
